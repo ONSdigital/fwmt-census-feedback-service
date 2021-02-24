@@ -1,21 +1,20 @@
 package uk.gov.ons.census.fwmt.outcomeservice.data;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.time.Instant;
 
 @Data
 @Builder(toBuilder = true)
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
+@ToString
 @Table(name = "gateway_cache")
 public class GatewayCache {
   @Id
@@ -41,11 +40,14 @@ public class GatewayCache {
   @Column(name = "estab_uprn")
   public String estabUprn;
 
-  @Column(name ="type")
+  @Column(name = "type")
   public Integer type;
 
-  @Column(name = "individual_case_id")
-  public String individualCaseId;
+  @Column(name = "last_action_instruction")
+  public String lastActionInstruction;
+
+  @Column(name = "last_action_time")
+  private Instant lastActionTime;
 
   @Column(name ="oa")
   public String oa;
@@ -71,6 +73,12 @@ public class GatewayCache {
   @Column(name = "original_case_id")
   public String originalCaseId;
 
-  // TODO : Probably move this object to common so its in one location
+  // display only the details related to request routing
+  public String toRoutingString() {
+    return "GatewayCache(" +
+        "existsInFwmt=" + this.existsInFwmt + ", " +
+        "delivered=" + this.delivered + ")";
+  }
+
 
 }

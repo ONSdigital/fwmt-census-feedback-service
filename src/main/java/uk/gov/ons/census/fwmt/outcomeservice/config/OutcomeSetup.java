@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import uk.gov.ons.census.fwmt.common.error.GatewayException;
+import uk.gov.ons.census.fwmt.outcomeservice.converter.CancelOutcomeLookup;
 import uk.gov.ons.census.fwmt.outcomeservice.converter.OutcomeLookup;
 import uk.gov.ons.census.fwmt.outcomeservice.converter.ReasonCodeLookup;
 import uk.gov.ons.census.fwmt.outcomeservice.converter.RefusalEncryptionLookup;
@@ -27,6 +28,9 @@ public class OutcomeSetup {
 
   @Value(value = "${outcomeservice.reasonCodeLookup.path}")
   private String reasonCodeLookupPath;
+
+  @Value(value = "${outcomeservice.cancelOutcomeCodeLookup.path}")
+  private String cancelOutcomeCodeLookupPath;
 
   @Value(value = "${outcomeservice.processorsleep.milliseconds}")
   private int processorSleepMilliSeconds;
@@ -49,6 +53,22 @@ public class OutcomeSetup {
       throw new GatewayException(GatewayException.Fault.SYSTEM_ERROR, e, "Cannot process outcome lookup");
     }
     return outcomeLookup;
+  }
+
+  @Bean
+  public CancelOutcomeLookup buildCancelOutcomeLookup() throws GatewayException {
+    String line;
+    Resource resource = resourceLoader.getResource(cancelOutcomeCodeLookupPath);
+
+    CancelOutcomeLookup cancelOutcomeLookup = new CancelOutcomeLookup();
+    try (BufferedReader in = new BufferedReader(new InputStreamReader(resource.getInputStream(), UTF_8))) {
+      while ((line = in.readLine()) != null) {
+        cancelOutcomeLookup.add(line);
+      }
+    } catch (IOException e) {
+      throw new GatewayException(GatewayException.Fault.SYSTEM_ERROR, e, "Cannot process outcome lookup");
+    }
+    return cancelOutcomeLookup;
   }
 
   @Bean

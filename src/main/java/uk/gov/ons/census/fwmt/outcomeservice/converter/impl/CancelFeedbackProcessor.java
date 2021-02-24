@@ -8,8 +8,10 @@ import uk.gov.ons.census.fwmt.common.rm.dto.ActionInstructionType;
 import uk.gov.ons.census.fwmt.common.rm.dto.FwmtCancelActionInstruction;
 import uk.gov.ons.census.fwmt.events.component.GatewayEventManager;
 import uk.gov.ons.census.fwmt.outcomeservice.converter.OutcomeServiceProcessor;
+import uk.gov.ons.census.fwmt.outcomeservice.data.GatewayCache;
 import uk.gov.ons.census.fwmt.outcomeservice.dto.OutcomeSuperSetDto;
 import uk.gov.ons.census.fwmt.outcomeservice.message.RmFieldRepublishProducer;
+import uk.gov.ons.census.fwmt.outcomeservice.service.impl.GatewayCacheService;
 import uk.gov.ons.census.fwmt.outcomeservice.service.impl.SwitchCaseIdService;
 
 import java.util.UUID;

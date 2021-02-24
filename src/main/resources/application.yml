@@ -54,6 +54,8 @@ outcomeservice:
     path: classpath:/outcomeCodeLookup.txt
   reasonCodeLookup:
     path: classpath:/reasonCodeLookup.txt
+  cancelOutcomeCodeLookup:
+    path: classpath:/cancelOutcomeCodeLookup.txt
   processorsleep:
     milliseconds: 200
   refusalEncryptionCodeLookup:

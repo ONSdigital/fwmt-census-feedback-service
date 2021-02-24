@@ -5,8 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.ons.census.fwmt.common.error.GatewayException;
 import uk.gov.ons.census.fwmt.events.component.GatewayEventManager;
+import uk.gov.ons.census.fwmt.outcomeservice.converter.CancelOutcomeLookup;
 import uk.gov.ons.census.fwmt.outcomeservice.converter.OutcomeServiceProcessor;
 import uk.gov.ons.census.fwmt.outcomeservice.converter.OutcomeLookup;
+import uk.gov.ons.census.fwmt.outcomeservice.data.GatewayCache;
 import uk.gov.ons.census.fwmt.outcomeservice.dto.OutcomeSuperSetDto;
 import uk.gov.ons.census.fwmt.outcomeservice.service.OutcomeService;
 
@@ -16,6 +18,7 @@ import java.util.UUID;
 
 import javax.transaction.Transactional;
 
+import static uk.gov.ons.census.fwmt.outcomeservice.converter.OutcomeServiceLogConfig.*;
 
 @Slf4j
 @Service
@@ -42,7 +45,13 @@ public class OutcomeServiceImpl implements OutcomeService {
   private OutcomeLookup outcomeLookup;
 
   @Autowired
+  private CancelOutcomeLookup cancelOutcomeLookup;
+
+  @Autowired
   private GatewayEventManager gatewayEventManager;
+
+  @Autowired
+  private GatewayCacheService gatewayCacheService;
 
   @Override
   @Transactional
@@ -66,6 +75,8 @@ public class OutcomeServiceImpl implements OutcomeService {
           "Operation list", Arrays.toString(operationsList));
       caseIdHolder = outcomeServiceProcessors.get(operation).process(outcome, caseIdHolder, "SPG");
     }
+    if (cancelOutcomeLookup.containsKey(outcome.getOutcomeCode()))
+      triggerCancelLog(String.valueOf(caseIdHolder),String.valueOf(outcome.getCaseId()),outcome.getOutcomeCode());
   }
 
   @Override
@@ -90,6 +101,8 @@ public class OutcomeServiceImpl implements OutcomeService {
           "Operation list", Arrays.toString(operationsList));
       caseIdHolder = outcomeServiceProcessors.get(operation).process(outcome, caseIdHolder, "CE");
     }
+    if (cancelOutcomeLookup.containsKey(outcome.getOutcomeCode()))
+      triggerCancelLog(String.valueOf(caseIdHolder),String.valueOf(outcome.getCaseId()),outcome.getOutcomeCode());
   }
 
   @Override
@@ -114,6 +127,8 @@ public class OutcomeServiceImpl implements OutcomeService {
           "Operation list", Arrays.toString(operationsList));
       caseIdHolder = outcomeServiceProcessors.get(operation).process(outcome, caseIdHolder, "HH");
     }
+    if (cancelOutcomeLookup.containsKey(outcome.getOutcomeCode()))
+      triggerCancelLog(String.valueOf(caseIdHolder),String.valueOf(outcome.getCaseId()),outcome.getOutcomeCode());
   }
 
   @Override
@@ -138,6 +153,8 @@ public class OutcomeServiceImpl implements OutcomeService {
           "Operation list", Arrays.toString(operationsList));
       caseIdHolder = outcomeServiceProcessors.get(operation).process(outcome, caseIdHolder, "CCS PL");
     }
+    if (cancelOutcomeLookup.containsKey(outcome.getOutcomeCode()))
+      triggerCancelLog(String.valueOf(caseIdHolder),String.valueOf(outcome.getCaseId()),outcome.getOutcomeCode());
   }
 
   @Override
@@ -162,6 +179,8 @@ public class OutcomeServiceImpl implements OutcomeService {
           "Operation list", Arrays.toString(operationsList));
       caseIdHolder = outcomeServiceProcessors.get(operation).process(outcome, caseIdHolder, "CCS INT");
     }
+    if (cancelOutcomeLookup.containsKey(outcome.getOutcomeCode()))
+      triggerCancelLog(String.valueOf(caseIdHolder),String.valueOf(outcome.getCaseId()),outcome.getOutcomeCode());
   }
 
   @Override
@@ -186,5 +205,16 @@ public class OutcomeServiceImpl implements OutcomeService {
           "Operation list", Arrays.toString(operationsList));
       caseIdHolder = outcomeServiceProcessors.get(operation).process(outcome, caseIdHolder, "NC");
     }
+    if (cancelOutcomeLookup.containsKey(outcome.getOutcomeCode()))
+      triggerCancelLog(String.valueOf(caseIdHolder),String.valueOf(outcome.getCaseId()),outcome.getOutcomeCode());
+  }
+
+  public void triggerCancelLog(String caseId, String originalCaseId, String outcomeCode) {
+    GatewayCache gatewayCache = gatewayCacheService.getById(String.valueOf(caseId));
+    gatewayEventManager.triggerEvent(caseId, BAU_PROCESS_CHECK_CANCEL_NEW_CASE,
+        ORIGINAL_CASE_ID, originalCaseId,
+        OUTCOME_CODE, outcomeCode,
+        LAST_ACTION_TYPE, gatewayCache.getLastActionInstruction() != null ? gatewayCache.lastActionInstruction : "Case not returned yet",
+        LAST_ACTION_TIME, gatewayCache.getLastActionTime() != null ? String.valueOf(gatewayCache.getLastActionTime()) : "Case not returned yet");
   }
 }

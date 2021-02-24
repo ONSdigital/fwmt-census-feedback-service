@@ -28,6 +28,8 @@ public class OutcomeServiceLogConfig {
 
   public static final String PROCESSOR = "Processor";
 
+  public static final String CASE_ID = "Case ID";
+
   public static final String ORIGINAL_CASE_ID = "Original Case ID";
 
   public static final String SITE_CASE_ID = "Site Case ID";
@@ -43,5 +45,14 @@ public class OutcomeServiceLogConfig {
   public static final String TRANSACTION_ID = "Transaction ID";
 
   public static final String ROUTING_KEY = "Routing key";
+
+  public static final String BAU_PROCESS_CHECK_CANCEL_NEW_CASE = "BAU_PROCESS_CHECK_CANCEL_NEW_CASE";
+
+  public static final String CACHE_MESSAGE_TYPE = "Cached message type";
+
+  public static final String LAST_ACTION_TYPE = "Last Action Type";
+
+  public static final String LAST_ACTION_TIME = "Last Action Time";
+
 
 }
